@@ -1,6 +1,7 @@
 package net.weg.gestao_produtos.controller;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import net.weg.gestao_produtos.model.Product;
 import net.weg.gestao_produtos.model.dto.ProductCadastroDTO;
 import net.weg.gestao_produtos.model.dto.ProductEdicaoDTO;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@Data
 @RequestMapping("/product")
 @AllArgsConstructor
 public class ProductController {
