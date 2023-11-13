@@ -1,7 +1,9 @@
 package net.weg.gestao_produtos.service;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import net.weg.gestao_produtos.Exceptions.AlreadyExistingBankException;
+import net.weg.gestao_produtos.Exceptions.NoExistsInBankException;
+import net.weg.gestao_produtos.Exceptions.EmptyNameOrNullException;
 import net.weg.gestao_produtos.model.Product;
 import net.weg.gestao_produtos.model.dto.ProductCadastroDTO;
 import net.weg.gestao_produtos.model.dto.ProductEdicaoDTO;
@@ -12,48 +14,54 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@Data
 @AllArgsConstructor
 public class ProductService {
 
     private ProductRepository productRepository;
 
-    public void deleteProduct(Integer id) throws Exception {
+    public void deleteProduct(Integer id) throws NoExistsInBankException {
         if (!productRepository.existsById(id)) {
-            throw new Exception("Não existe um produto com o ID " + id + "! Tente novamente com outro ID.");
+            throw new NoExistsInBankException(id);
         }
         productRepository.deleteById(id);
     }
 
-    public Product editProduct(ProductEdicaoDTO dto) throws Exception {
+    public Product editProduct(ProductEdicaoDTO dto) throws NoExistsInBankException {
         Product product = new Product();
         BeanUtils.copyProperties(dto, product);
 
         if (!productRepository.existsById(product.getId())) {
-            throw new Exception("Não existe um produto com o ID " + product.getId() + "! Tente novamente com outro ID.");
+            throw new NoExistsInBankException(product.getName());
         } else if (product.getPrice() <= 0 && product.getStockQuantity() < 0) {
-            throw new Exception("O preço e a quantidade em estoque não podem ser negativos");
+            throw new RuntimeException("O preço e a quantidade em estoque não podem ser negativos");
+        }else if(product.getName().equals("")){
+            throw new EmptyNameOrNullException();
         }
         return productRepository.save(product);
     }
 
-    public Product createProduct(ProductCadastroDTO dto) throws Exception {
+    public Product createProduct(ProductCadastroDTO dto) throws AlreadyExistingBankException {
         Product product = new Product();
         BeanUtils.copyProperties(dto, product);
 
         if (product.getPrice() <= 0 && product.getStockQuantity() < 0) {
             throw new RuntimeException("O preço e a quantidade em estoque não podem ser negativos");
-        } else if (product.getId() != null && productRepository.existsById(product.getId())) {
-            throw new Exception("Já existe um produto com o ID " + product.getId() + "! Tente novamente com outro ID.");
+        } else if (product.getId() != null && productRepository.existsByBarCode(product.getBarCode())) {
+            throw new AlreadyExistingBankException(product.getName());
+        }else if(product.getName().equals("")){
+            throw new EmptyNameOrNullException();
         }
         return productRepository.save(product);
     }
 
-    public Product findOne(Integer id) {
+    public Product findOneProduct(Integer id) throws NoExistsInBankException {
+        if (!productRepository.existsById(id)) {
+            throw new NoExistsInBankException(id);
+        }
         return productRepository.findById(id).get();
     }
 
-    public List<Product> findAll() {
+    public List<Product> findAllProduct() {
         return productRepository.findAll();
     }
 

@@ -15,7 +15,6 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(unique = true)
     private Integer id;
     @Column(nullable = false)
     private String expirationDate;
@@ -29,7 +28,7 @@ public class Product {
     private Double weight;
     @Column(nullable = false)
     private Double measure;
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @JoinColumn(nullable = false)
     private Manufacturer manufacturer;
     @Column(nullable = false)
